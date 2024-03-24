@@ -28,7 +28,6 @@ print(sprintf("The total amount of G-C pairs in the sequence: %s", totalContentI
 ## 2.2 Find the GC-Content in batches of 500 (totals in 10 batches for the given 5000 base long sequnece).
 # Split to bi-nucleotides and vectorize
 binucleotides <- regmatches(dnaSequence, gregexpr(".{2}", dnaSequence))[[1]];
-length(binucleotides)
 
 # Break the vector of 2.500 bi-nucleotides into equidistant sub vectors w. 250 base pairs each.
 chunkSize <- 250;
