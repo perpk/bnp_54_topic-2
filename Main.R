@@ -21,12 +21,11 @@ dnaSequence <- paste(readLines("dna_sequence.txt"))[1];
 
 # Part 2 - Find the GC-Content inside the DNA sequence.
 
-## 2.1 Find the total amount of GC-Content.
+## 2.1 Find the total amount of G-C pairs.
 totalContentInSeq <- stringi::stri_count_fixed(dnaSequence, "GC");
-
+print(sprintf("The total amount of G-C pairs in the sequence: %s", totalContentInSeq), quote=FALSE);
 
 ## 2.2 Find the GC-Content in batches of 500 (totals in 10 batches for the given 5000 base long sequnece).
-
 # Split to bi-nucleotides and vectorize
 binucleotides <- regmatches(dnaSequence, gregexpr(".{2}", dnaSequence))[[1]];
 length(binucleotides)
