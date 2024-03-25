@@ -16,20 +16,20 @@
 library("stringi");
 library("scales");
 
+source("CalcGCContent.R");
+
 # Part 1 - Read file contents as a character sequence into a variable.
 dnaSequence <- paste(readLines("dna_sequence.txt"))[1];
 
 # Part 2 - Find the GC-Content inside the DNA sequence.
+print(sprintf("The total G-C Content for the given sequence equals to: %s", percent(calcGCContent(dnaSequence), accuracy = 0.2)), quote = FALSE);
 
-## 2.1 Find the total amount of G-C pairs.
-totalContentInSeq <- stringi::stri_count_fixed(dnaSequence, "GC");
-print(sprintf("The total amount of G-C pairs in the sequence: %s", totalContentInSeq), quote=FALSE);
+# Find the GC-Content in batches of 500 and the amount of GC binucleotides within each batch.
 
-## 2.2 Find the GC-Content in batches of 500 (totals in 10 batches for the given 5000 base long sequnece).
-# Split to bi-nucleotides and vectorize
+# Generate a vector of vectors containing binucleotides extracted from the sequence.
 binucleotides <- regmatches(dnaSequence, gregexpr(".{2}", dnaSequence))[[1]];
 
-# Break the vector of 2.500 bi-nucleotides into equidistant sub vectors w. 250 base pairs each.
+# Break the vector of 2.500 bi-nucleotides evenly into sub vectors w. 250 base pairs each.
 chunkSize <- 250;
 binucleotidesVectors <- split(binucleotides, ceiling(seq_along(binucleotides) / chunkSize));
 
@@ -46,24 +46,12 @@ binucleotide.abs.dataFrame <- as.data.frame(rbind(
       table(binucleotidesVectors[[9]]),
       table(binucleotidesVectors[[10]])));
 
-binucleotide.pct.dataFrame <- as.data.frame(rbind(
-    prop.table(table(binucleotidesVectors[[1]])), 
-    prop.table(table(binucleotidesVectors[[2]])),
-    prop.table(table(binucleotidesVectors[[3]])),
-    prop.table(table(binucleotidesVectors[[4]])),
-    prop.table(table(binucleotidesVectors[[5]])),
-    prop.table(table(binucleotidesVectors[[6]])),
-    prop.table(table(binucleotidesVectors[[7]])),
-    prop.table(table(binucleotidesVectors[[8]])),
-    prop.table(table(binucleotidesVectors[[9]])),
-    prop.table(table(binucleotidesVectors[[10]]))));
-
 # Iterate over all rows and print out the results for the G-C Content
 for (index in 1:10) {
-  outContent <- sprintf("The G-C Content for batch-no. %s: %s", index, percent(binucleotide.pct.dataFrame$GC[index], accuracy=0.1));
-  outAmount <- sprintf("The G-C Amount for batch-no. %s: %s", index, binucleotide.abs.dataFrame$GC[index]);
-  print(outContent, quote=FALSE);
-  print(outAmount, quote=FALSE);
-  print("---------------------------------------------", quote=FALSE);
+  currentSubSeq <- paste(binucleotidesVectors[[index]], collapse = '');
+  currentGCContent <- calcGCContent(currentSubSeq);
+  print(sprintf("============= Batch no. %s =============", index), quote = FALSE);
+  print(sprintf("G-C Content: %s", percent(currentGCContent, accuracy = 0.2)), quote = FALSE);
+  print(sprintf("GC-Binucleotide Amount: %s", binucleotide.abs.dataFrame$GC[index]), quote = FALSE);
 }
 
